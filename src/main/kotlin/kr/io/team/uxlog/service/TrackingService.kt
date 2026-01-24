@@ -27,17 +27,11 @@ class TrackingService(
         ipAddress: String? = null,
         userAgent: String? = null
     ) {
-        try {
-            val data = TrackingData(
-                projectId = projectId,
-                channel = channel,
-                postNumber = postNumber,
-                ipAddress = ipAddress,
-                userAgent = userAgent
-            )
-            val json = objectMapper.writeValueAsString(data)
-            redisTemplate.opsForList().leftPush(bufferProperties.key, json)
-        } catch (e: Exception) {
+        runCatching {
+            TrackingData(projectId, channel, postNumber, ipAddress, userAgent)
+                .let { objectMapper.writeValueAsString(it) }
+                .let { redisTemplate.opsForList().leftPush(bufferProperties.key, it) }
+        }.onFailure { e ->
             logger.warn("Failed to push to Redis, falling back to direct DB insert: {}", e.message)
             saveDirectly(projectId, channel, postNumber, ipAddress, userAgent)
         }
@@ -53,14 +47,12 @@ class TrackingService(
         val project = projectRepository.findById(projectId)
             .orElseThrow { IllegalArgumentException("Project not found: $projectId") }
 
-        pageViewRepository.save(
-            PageView(
-                project = project,
-                channel = channel,
-                postNumber = postNumber,
-                ipAddress = ipAddress,
-                userAgent = userAgent
-            )
-        )
+        PageView(
+            project = project,
+            channel = channel,
+            postNumber = postNumber,
+            ipAddress = ipAddress,
+            userAgent = userAgent
+        ).also { pageViewRepository.save(it) }
     }
 }
