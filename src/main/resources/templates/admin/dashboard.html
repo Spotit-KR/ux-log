@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <h1>Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" th:text="${projectCount}">0</div>
+            <div class="stat-label">Total Projects</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${totalPageViews}">0</div>
+            <div class="stat-label">Total Page Views</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${totalEmails}">0</div>
+            <div class="stat-label">Total Emails</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${totalPageViews > 0 ? #numbers.formatDecimal(totalEmails * 100.0 / totalPageViews, 1, 1) + '%' : '0%'}">0%</div>
+            <div class="stat-label">Overall Conversion</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 0;">Projects Overview</h2>
+            <button class="btn" onclick="openModal()">+ New Project</button>
+        </div>
+
+        <div th:if="${#lists.isEmpty(projects)}" class="empty-state">
+            <p>No projects yet. Create your first project to start tracking.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(projects)}">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Page Views</th>
+                    <th>Emails</th>
+                    <th>Conversion Rate</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="stat : ${projectStats}">
+                    <td th:text="${stat.projectName}">Project Name</td>
+                    <td th:text="${stat.totalPageViews}">0</td>
+                    <td th:text="${stat.totalEmails}">0</td>
+                    <td class="conversion-rate" th:text="${#numbers.formatDecimal(stat.conversionRate, 1, 1) + '%'}">0%</td>
+                    <td>
+                        <a th:href="@{/admin/projects/{id}(id=${stat.projectId})}" class="btn btn-secondary">View Details</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Project</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="projectForm" onsubmit="createProject(event)">
+                <div class="form-group">
+                    <label for="projectName">Project Name *</label>
+                    <input type="text" id="projectName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">Create Project</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('active');
+        }
+
+        async function createProject(e) {
+            e.preventDefault();
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+
+            const response = await fetch('/api/admin/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to create project');
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="breadcrumb">
+        <a href="/admin">Dashboard</a> &gt;
+        <a href="/admin/projects">Projects</a> &gt;
+        <span th:text="${project.name}">Project Name</span>
+    </div>
+
+    <h1 th:text="${project.name}">Project Name</h1>
+    <p th:if="${project.description}" th:text="${project.description}" style="color: #7f8c8d; margin-bottom: 20px;">Description</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" th:text="${stats.totalPageViews}">0</div>
+            <div class="stat-label">Page Views</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" th:text="${stats.totalEmails}">0</div>
+            <div class="stat-label">Emails Collected</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value conversion-rate" th:text="${#numbers.formatDecimal(stats.conversionRate, 1, 1) + '%'}">0%</div>
+            <div class="stat-label">Conversion Rate</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 0;">Channel Statistics</h2>
+            <a th:href="@{/admin/projects/{id}/emails(id=${project.id})}" class="btn">View Emails</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(stats.channelStats)}" class="empty-state">
+            <p>No traffic data yet. Start tracking by using the API.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(stats.channelStats)}">
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>Page Views</th>
+                    <th>Emails</th>
+                    <th>Conversion Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="channel : ${stats.channelStats}">
+                    <td th:text="${channel.channel}">channel</td>
+                    <td th:text="${channel.pageViews}">0</td>
+                    <td th:text="${channel.emails}">0</td>
+                    <td class="conversion-rate" th:text="${#numbers.formatDecimal(channel.conversionRate, 1, 1) + '%'}">0%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Integration Guide</h2>
+        <p style="margin-bottom: 15px;">Add this tracking code to your landing page:</p>
+
+        <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 13px; overflow-x: auto;">
+            <pre style="margin: 0; white-space: pre-wrap;">// Track page view on load
+fetch(`${window.location.origin}/api/track?projectId=<span th:text="${project.id}">1</span>&amp;channel=YOUR_CHANNEL&amp;postNumber=YOUR_POST_NUMBER`);
+
+// Submit email
+async function submitEmail(email) {
+    await fetch(`${window.location.origin}/api/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            projectId: <span th:text="${project.id}">1</span>,
+            email: email,
+            channel: 'YOUR_CHANNEL',
+            postNumber: 'YOUR_POST_NUMBER'
+        })
+    });
+}</pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>

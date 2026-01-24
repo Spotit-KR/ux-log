@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <h1>Projects</h1>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <p th:text="${#lists.size(projects)} + ' projects'">0 projects</p>
+            <button class="btn" onclick="openModal()">+ New Project</button>
+        </div>
+
+        <div th:if="${#lists.isEmpty(projects)}" class="empty-state">
+            <p>No projects yet. Create your first project to start tracking.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(projects)}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="project : ${projects}">
+                    <td th:text="${project.id}">1</td>
+                    <td th:text="${project.name}">Project Name</td>
+                    <td th:text="${project.description ?: '-'}">Description</td>
+                    <td th:text="${#temporals.format(project.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                    <td>
+                        <a th:href="@{/admin/projects/{id}(id=${project.id})}" class="btn btn-secondary">View</a>
+                        <a th:href="@{/admin/projects/{id}/emails(id=${project.id})}" class="btn">Emails</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Project</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="projectForm" onsubmit="createProject(event)">
+                <div class="form-group">
+                    <label for="projectName">Project Name *</label>
+                    <input type="text" id="projectName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" name="description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">Create Project</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('active');
+        }
+
+        async function createProject(e) {
+            e.preventDefault();
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+
+            const response = await fetch('/api/admin/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to create project');
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

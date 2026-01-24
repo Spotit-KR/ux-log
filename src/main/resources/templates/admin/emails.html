@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="breadcrumb">
+        <a href="/admin">Dashboard</a> &gt;
+        <a href="/admin/projects">Projects</a> &gt;
+        <a th:href="@{/admin/projects/{id}(id=${project.id})}" th:text="${project.name}">Project Name</a> &gt;
+        <span>Emails</span>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Emails - <span th:text="${project.name}">Project Name</span></h1>
+        <a th:href="@{/api/admin/projects/{id}/emails/export(id=${project.id})}" class="btn btn-success">Export CSV</a>
+    </div>
+
+    <div class="card">
+        <p style="margin-bottom: 20px;" th:text="${#lists.size(emails)} + ' emails collected'">0 emails collected</p>
+
+        <div th:if="${#lists.isEmpty(emails)}" class="empty-state">
+            <p>No emails collected yet.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(emails)}">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Channel</th>
+                    <th>Post Number</th>
+                    <th>Collected At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="email : ${emails}">
+                    <td th:text="${email.email}">user@example.com</td>
+                    <td th:text="${email.channel ?: '-'}">-</td>
+                    <td th:text="${email.postNumber ?: '-'}">-</td>
+                    <td th:text="${#temporals.format(email.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uxlog-postgres
+    environment:
+      POSTGRES_DB: uxlog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - uxlog-data:/var/lib/postgresql/data
+
+volumes:
+  uxlog-data:
