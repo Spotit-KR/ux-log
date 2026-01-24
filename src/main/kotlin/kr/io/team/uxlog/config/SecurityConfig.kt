@@ -21,6 +21,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { }
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/api/track", "/api/email").permitAll()
