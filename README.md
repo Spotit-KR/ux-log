@@ -7,6 +7,7 @@
 - Kotlin 2.3.0
 - Spring Boot 4.0.2
 - JPA + PostgreSQL
+- Valkey/Redis (트래킹 버퍼)
 - Thymeleaf (관리자 페이지)
 
 ## 시작하기
@@ -36,6 +37,9 @@ http://localhost:8080/admin
 | `DB_PASSWORD` | DB 비밀번호 | `postgres` |
 | `ADMIN_USERNAME` | 관리자 계정 | `admin` |
 | `ADMIN_PASSWORD` | 관리자 비밀번호 | `admin` |
+| `REDIS_HOST` | Redis/Valkey 호스트 | `localhost` |
+| `REDIS_PORT` | Redis/Valkey 포트 | `6379` |
+| `REDIS_PASSWORD` | Redis/Valkey 비밀번호 | (없음) |
 
 ## 인증
 
@@ -75,6 +79,22 @@ curl "http://localhost:8080/api/track?projectId=1&channel=thread&postNumber=42"
 ```
 
 **Response:** `204 No Content`
+
+**내부 동작:**
+
+트래킹 API는 성능 향상을 위해 Valkey/Redis 버퍼를 사용합니다.
+
+1. API 호출 시 데이터를 Valkey List에 LPUSH (즉시 응답, ~1ms)
+2. 백그라운드 스케줄러가 5초마다 버퍼에서 데이터를 꺼내 PostgreSQL에 배치 INSERT
+3. Valkey 연결 실패 시 자동으로 직접 DB INSERT로 폴백
+
+```
+[API 요청] → [Valkey LPUSH] → [배치 스케줄러] → [PostgreSQL]
+                  ↓ (실패 시)
+            [직접 DB INSERT]
+```
+
+> **Note:** 버퍼링으로 인해 통계 반영에 최대 5초의 지연이 발생할 수 있습니다.
 
 ---
 
