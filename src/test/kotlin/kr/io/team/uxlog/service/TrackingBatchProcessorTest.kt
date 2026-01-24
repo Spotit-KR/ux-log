@@ -6,9 +6,7 @@ import kr.io.team.uxlog.repository.PageViewRepository
 import kr.io.team.uxlog.repository.ProjectRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.verify
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,14 +14,15 @@ import org.springframework.data.redis.core.ListOperations
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import kotlin.test.assertEquals
 
 @SpringBootTest
 @Transactional
-class TrackingServiceTest {
+class TrackingBatchProcessorTest {
 
     @Autowired
-    lateinit var trackingService: TrackingService
+    lateinit var batchProcessor: TrackingBatchProcessor
 
     @Autowired
     lateinit var projectRepository: ProjectRepository
@@ -33,6 +32,9 @@ class TrackingServiceTest {
 
     @Autowired
     lateinit var bufferProperties: TrackingBufferProperties
+
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
 
     @MockitoBean
     lateinit var redisTemplate: StringRedisTemplate
@@ -49,27 +51,29 @@ class TrackingServiceTest {
     }
 
     @Test
-    fun `페이지 방문을 기록하면 Redis에 저장된다`() {
-        trackingService.trackPageView(
-            projectId = project.id,
-            channel = "thread",
-            postNumber = "42",
-            ipAddress = "127.0.0.1",
-            userAgent = "Mozilla/5.0"
-        )
+    fun `버퍼에 데이터가 있으면 배치로 저장한다`() {
+        val trackingJson = """
+            {"projectId":${project.id},"channel":"thread","postNumber":"42","ipAddress":"127.0.0.1","userAgent":"Mozilla/5.0","createdAt":"2024-01-01T12:00:00"}
+        """.trimIndent()
 
-        verify(listOperations).leftPush(eq(bufferProperties.key), any())
+        whenever(listOperations.range(bufferProperties.key, -100, -1))
+            .thenReturn(listOf(trackingJson))
+            .thenReturn(emptyList())
+
+        batchProcessor.flush()
+
+        val count = pageViewRepository.countByProjectId(project.id)
+        assertEquals(1, count)
     }
 
     @Test
-    fun `여러 번 방문을 기록하면 Redis에 여러 번 저장된다`() {
-        repeat(5) {
-            trackingService.trackPageView(
-                projectId = project.id,
-                channel = "thread"
-            )
-        }
+    fun `버퍼가 비어있으면 아무것도 저장하지 않는다`() {
+        whenever(listOperations.range(bufferProperties.key, -100, -1))
+            .thenReturn(emptyList())
 
-        verify(listOperations, org.mockito.kotlin.times(5)).leftPush(eq(bufferProperties.key), any())
+        batchProcessor.flush()
+
+        val count = pageViewRepository.countByProjectId(project.id)
+        assertEquals(0, count)
     }
 }
