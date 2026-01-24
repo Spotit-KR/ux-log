@@ -42,7 +42,9 @@ class SecurityConfig(
             .csrf { csrf ->
                 csrf.ignoringRequestMatchers("/api/**")
             }
-            .httpBasic { }
+            .httpBasic { basic ->
+                basic.disable()
+            }
 
         return http.build()
     }
