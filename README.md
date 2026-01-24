@@ -122,7 +122,16 @@ curl -X POST "http://localhost:8080/api/email" \
 
 // 이미 등록됨 (200 OK)
 {"success": true, "message": "Already subscribed"}
+
+// 에러 (400 Bad Request)
+{"success": false, "message": "Invalid email format"}
 ```
+
+**제약사항:**
+- 이메일 형식 검증 (유효한 이메일만 허용)
+- 빈 문자열 불가
+- 프로젝트별 동일 이메일 중복 등록 불가
+- 존재하지 않는 프로젝트 ID는 에러
 
 ---
 
@@ -200,6 +209,20 @@ GET /api/admin/projects/{id}/stats
 GET /api/admin/projects/{id}/emails
 ```
 
+**Response:**
+
+```json
+[
+  {
+    "id": 1,
+    "email": "user@example.com",
+    "channel": "thread",
+    "postNumber": "42",
+    "createdAt": "2024-01-01T00:00:00"
+  }
+]
+```
+
 #### 이메일 CSV 내보내기
 
 ```
@@ -210,24 +233,42 @@ GET /api/admin/projects/{id}/emails/export
 
 ## 랜딩페이지 연동 예시
 
+랜딩페이지 URL에 query parameter를 포함하여 유입 채널을 추적합니다.
+
+**랜딩페이지 URL 예시:**
+```
+https://your-landing.com?channel=thread&postNumber=42
+https://your-landing.com?channel=instagram&postNumber=123
+```
+
+이 query parameter들을 읽어서 트래킹 API에 전달합니다.
+
 ```html
 <script>
+  const PROJECT_ID = 1; // 프로젝트 ID
+  const API_BASE = 'https://your-uxlog-server.com';
+
+  // URL에서 query parameter 읽기
+  const params = new URLSearchParams(window.location.search);
+  const channel = params.get('channel') || 'direct';
+  const postNumber = params.get('postNumber') || '';
+
   // 페이지 로드 시 방문 기록
-  fetch('https://your-server.com/api/track?projectId=1&channel=thread&postNumber=42');
+  fetch(`${API_BASE}/api/track?projectId=${PROJECT_ID}&channel=${channel}&postNumber=${postNumber}`);
 
   // 이메일 폼 제출
   document.getElementById('emailForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
 
-    await fetch('https://your-server.com/api/email', {
+    await fetch(`${API_BASE}/api/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        projectId: 1,
+        projectId: PROJECT_ID,
         email: email,
-        channel: 'thread',
-        postNumber: '42'
+        channel: channel,
+        postNumber: postNumber
       })
     });
 
@@ -235,6 +276,12 @@ GET /api/admin/projects/{id}/emails/export
   });
 </script>
 ```
+
+**활용 예시:**
+- 스레드 게시물: `https://your-landing.com?channel=thread&postNumber=1`
+- 인스타그램: `https://your-landing.com?channel=instagram&postNumber=abc123`
+- 트위터: `https://your-landing.com?channel=twitter`
+- 직접 유입: `https://your-landing.com` (channel이 없으면 'direct'로 기록)
 
 ---
 
