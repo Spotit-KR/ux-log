@@ -13,12 +13,18 @@ class EmailService(
     private val emailSubscriptionRepository: EmailSubscriptionRepository
 ) {
 
+    companion object {
+        private val EMAIL_REGEX = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    }
+
     fun subscribe(
         projectId: Long,
         email: String,
         channel: String? = null,
         postNumber: String? = null
     ): Boolean {
+        validateEmail(email)
+
         val project = projectRepository.findById(projectId)
             .orElseThrow { IllegalArgumentException("Project not found: $projectId") }
 
@@ -35,6 +41,15 @@ class EmailService(
             )
         )
         return true
+    }
+
+    private fun validateEmail(email: String) {
+        if (email.isBlank()) {
+            throw IllegalArgumentException("Email is required")
+        }
+        if (!EMAIL_REGEX.matches(email)) {
+            throw IllegalArgumentException("Invalid email format")
+        }
     }
 
     @Transactional(readOnly = true)

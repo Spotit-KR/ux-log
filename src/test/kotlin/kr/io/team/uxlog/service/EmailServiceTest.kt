@@ -75,4 +75,42 @@ class EmailServiceTest {
         val emails = emailService.getEmailsByProjectId(project.id)
         assertEquals(2, emails.size)
     }
+
+    @Test
+    fun `잘못된 이메일 형식은 예외가 발생한다`() {
+        val exception = assertThrows<IllegalArgumentException> {
+            emailService.subscribe(projectId = project.id, email = "invalid-email")
+        }
+        assertEquals("Invalid email format", exception.message)
+    }
+
+    @Test
+    fun `빈 이메일은 예외가 발생한다`() {
+        val exception = assertThrows<IllegalArgumentException> {
+            emailService.subscribe(projectId = project.id, email = "")
+        }
+        assertEquals("Email is required", exception.message)
+    }
+
+    @Test
+    fun `공백만 있는 이메일은 예외가 발생한다`() {
+        val exception = assertThrows<IllegalArgumentException> {
+            emailService.subscribe(projectId = project.id, email = "   ")
+        }
+        assertEquals("Email is required", exception.message)
+    }
+
+    @Test
+    fun `골뱅이가 없는 이메일은 예외가 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            emailService.subscribe(projectId = project.id, email = "userexample.com")
+        }
+    }
+
+    @Test
+    fun `도메인이 없는 이메일은 예외가 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            emailService.subscribe(projectId = project.id, email = "user@")
+        }
+    }
 }
