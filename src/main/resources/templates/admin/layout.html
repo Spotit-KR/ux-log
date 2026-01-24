@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(content)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -183,10 +185,18 @@
     </style>
 </head>
 <body>
-    <nav>
-        <a href="/admin" class="nav-brand">UX-Log</a>
-        <a href="/admin">Dashboard</a>
-        <a href="/admin/projects">Projects</a>
+    <nav style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <a href="/admin" class="nav-brand">UX-Log</a>
+            <a href="/admin">Dashboard</a>
+            <a href="/admin/projects">Projects</a>
+        </div>
+        <div>
+            <span style="color: #95a5a6; margin-right: 15px;" sec:authentication="name">User</span>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" style="background: none; border: none; color: #e74c3c; cursor: pointer; font-weight: 500;">Logout</button>
+            </form>
+        </div>
     </nav>
     <div class="container">
         <div th:replace="${content}"></div>

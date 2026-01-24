@@ -37,6 +37,7 @@
         <table th:if="${!#lists.isEmpty(projects)}">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Project Name</th>
                     <th>Page Views</th>
                     <th>Emails</th>
@@ -46,6 +47,7 @@
             </thead>
             <tbody>
                 <tr th:each="stat : ${projectStats}">
+                    <td th:text="${stat.projectId}">1</td>
                     <td th:text="${stat.projectName}">Project Name</td>
                     <td th:text="${stat.totalPageViews}">0</td>
                     <td th:text="${stat.totalEmails}">0</td>

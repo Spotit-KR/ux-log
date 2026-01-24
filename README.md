@@ -34,6 +34,17 @@ http://localhost:8080/admin
 | `DB_URL` | PostgreSQL 접속 URL | `jdbc:postgresql://localhost:5432/uxlog` |
 | `DB_USERNAME` | DB 사용자명 | `postgres` |
 | `DB_PASSWORD` | DB 비밀번호 | `postgres` |
+| `ADMIN_USERNAME` | 관리자 계정 | `admin` |
+| `ADMIN_PASSWORD` | 관리자 비밀번호 | `admin` |
+
+## 인증
+
+- `/api/track`, `/api/email`: 인증 없이 접근 가능 (랜딩페이지에서 호출)
+- `/admin/**`, `/api/admin/**`: 로그인 필요
+
+기본 관리자 계정: `admin` / `admin`
+
+운영 환경에서는 반드시 `ADMIN_USERNAME`, `ADMIN_PASSWORD` 환경 변수를 설정하세요.
 
 ---
 

@@ -9,7 +9,7 @@
         <span th:text="${project.name}">Project Name</span>
     </div>
 
-    <h1 th:text="${project.name}">Project Name</h1>
+    <h1><span th:text="${project.name}">Project Name</span> <span style="color: #7f8c8d; font-size: 0.5em;">(ID: <span th:text="${project.id}">1</span>)</span></h1>
     <p th:if="${project.description}" th:text="${project.description}" style="color: #7f8c8d; margin-bottom: 20px;">Description</p>
 
     <div class="stats-grid">

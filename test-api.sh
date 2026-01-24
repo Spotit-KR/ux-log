@@ -1,6 +1,8 @@
 #!/bin/bash
 
 BASE_URL="http://localhost:8080"
+ADMIN_USER="${ADMIN_USERNAME:-admin}"
+ADMIN_PASS="${ADMIN_PASSWORD:-admin}"
 
 echo "=== UX-Log API Test ==="
 echo ""
@@ -53,15 +55,15 @@ echo ""
 
 echo ""
 
-# Check stats
-echo "=== Check Stats ==="
+# Check stats (requires authentication)
+echo "=== Check Stats (with auth) ==="
 
 echo "Project 1 stats:"
-curl -s "$BASE_URL/api/admin/projects/1/stats" | python3 -m json.tool 2>/dev/null || curl -s "$BASE_URL/api/admin/projects/1/stats"
+curl -s -u "$ADMIN_USER:$ADMIN_PASS" "$BASE_URL/api/admin/projects/1/stats" | python3 -m json.tool 2>/dev/null || curl -s -u "$ADMIN_USER:$ADMIN_PASS" "$BASE_URL/api/admin/projects/1/stats"
 echo ""
 
 echo "Project 2 stats:"
-curl -s "$BASE_URL/api/admin/projects/2/stats" | python3 -m json.tool 2>/dev/null || curl -s "$BASE_URL/api/admin/projects/2/stats"
+curl -s -u "$ADMIN_USER:$ADMIN_PASS" "$BASE_URL/api/admin/projects/2/stats" | python3 -m json.tool 2>/dev/null || curl -s -u "$ADMIN_USER:$ADMIN_PASS" "$BASE_URL/api/admin/projects/2/stats"
 echo ""
 
 echo "=== Done ==="
