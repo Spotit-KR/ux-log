@@ -15,11 +15,15 @@
             <div class="stat-label">Total Page Views</div>
         </div>
         <div class="stat-card">
+            <div class="stat-value" th:text="${totalUniqueVisitors}">0</div>
+            <div class="stat-label">Unique Visitors</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-value" th:text="${totalEmails}">0</div>
             <div class="stat-label">Total Emails</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value" th:text="${totalPageViews > 0 ? #numbers.formatDecimal(totalEmails * 100.0 / totalPageViews, 1, 1) + '%' : '0%'}">0%</div>
+            <div class="stat-value" th:text="${totalUniqueVisitors > 0 ? #numbers.formatDecimal(totalEmails * 100.0 / totalUniqueVisitors, 1, 1) + '%' : '0%'}">0%</div>
             <div class="stat-label">Overall Conversion</div>
         </div>
     </div>
@@ -40,6 +44,7 @@
                     <th>ID</th>
                     <th>Project Name</th>
                     <th>Page Views</th>
+                    <th>Unique Visitors</th>
                     <th>Emails</th>
                     <th>Conversion Rate</th>
                     <th>Actions</th>
@@ -50,6 +55,7 @@
                     <td th:text="${stat.projectId}">1</td>
                     <td th:text="${stat.projectName}">Project Name</td>
                     <td th:text="${stat.totalPageViews}">0</td>
+                    <td th:text="${stat.totalUniqueVisitors}">0</td>
                     <td th:text="${stat.totalEmails}">0</td>
                     <td class="conversion-rate" th:text="${#numbers.formatDecimal(stat.conversionRate, 1, 1) + '%'}">0%</td>
                     <td>

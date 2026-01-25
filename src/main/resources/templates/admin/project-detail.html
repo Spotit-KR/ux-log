@@ -18,6 +18,10 @@
             <div class="stat-label">Page Views</div>
         </div>
         <div class="stat-card">
+            <div class="stat-value" th:text="${stats.totalUniqueVisitors}">0</div>
+            <div class="stat-label">Unique Visitors</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-value" th:text="${stats.totalEmails}">0</div>
             <div class="stat-label">Emails Collected</div>
         </div>
@@ -42,6 +46,7 @@
                 <tr>
                     <th>Channel</th>
                     <th>Page Views</th>
+                    <th>Unique Visitors</th>
                     <th>Emails</th>
                     <th>Conversion Rate</th>
                 </tr>
@@ -50,8 +55,77 @@
                 <tr th:each="channel : ${stats.channelStats}">
                     <td th:text="${channel.channel}">channel</td>
                     <td th:text="${channel.pageViews}">0</td>
+                    <td th:text="${channel.uniqueVisitors}">0</td>
                     <td th:text="${channel.emails}">0</td>
                     <td class="conversion-rate" th:text="${#numbers.formatDecimal(channel.conversionRate, 1, 1) + '%'}">0%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 0;">Daily Statistics</h2>
+            <div>
+                <a th:href="@{/admin/projects/{id}(id=${project.id}, days=7)}"
+                   th:classappend="${days == 7} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">7 Days</a>
+                <a th:href="@{/admin/projects/{id}(id=${project.id}, days=30)}"
+                   th:classappend="${days == 30} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">30 Days</a>
+                <a th:href="@{/admin/projects/{id}(id=${project.id}, days=90)}"
+                   th:classappend="${days == 90} ? 'btn' : 'btn btn-secondary'">90 Days</a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(dailyStats)}" class="empty-state">
+            <p>No daily data available yet.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(dailyStats)}">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Page Views</th>
+                    <th>Unique Visitors</th>
+                    <th>Emails</th>
+                    <th>Conversion Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="daily : ${dailyStats}">
+                    <td th:text="${daily.date}">2024-01-01</td>
+                    <td th:text="${daily.pageViews}">0</td>
+                    <td th:text="${daily.uniqueVisitors}">0</td>
+                    <td th:text="${daily.emails}">0</td>
+                    <td class="conversion-rate" th:text="${#numbers.formatDecimal(daily.conversionRate, 1, 1) + '%'}">0%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Post Statistics</h2>
+
+        <div th:if="${#lists.isEmpty(postStats)}" class="empty-state">
+            <p>No post-level data available yet. Use the postNumber parameter when tracking.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(postStats)}">
+            <thead>
+                <tr>
+                    <th>Post Number</th>
+                    <th>Page Views</th>
+                    <th>Unique Visitors</th>
+                    <th>Emails</th>
+                    <th>Conversion Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="post : ${postStats}">
+                    <td th:text="${post.postNumber}">123</td>
+                    <td th:text="${post.pageViews}">0</td>
+                    <td th:text="${post.uniqueVisitors}">0</td>
+                    <td th:text="${post.emails}">0</td>
+                    <td class="conversion-rate" th:text="${#numbers.formatDecimal(post.conversionRate, 1, 1) + '%'}">0%</td>
                 </tr>
             </tbody>
         </table>
@@ -62,8 +136,19 @@
         <p style="margin-bottom: 15px;">Add this tracking code to your landing page:</p>
 
         <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 13px; overflow-x: auto;">
-            <pre style="margin: 0; white-space: pre-wrap;">// Track page view on load
-fetch(`${window.location.origin}/api/track?projectId=<span th:text="${project.id}">1</span>&amp;channel=YOUR_CHANNEL&amp;postNumber=YOUR_POST_NUMBER`);
+            <pre style="margin: 0; white-space: pre-wrap;">// Get or create visitor ID (store in cookie)
+function getVisitorId() {
+    let id = document.cookie.match(/visitorId=([^;]+)/)?.[1];
+    if (!id) {
+        id = crypto.randomUUID();
+        document.cookie = `visitorId=${id}; max-age=31536000; path=/`;
+    }
+    return id;
+}
+
+// Track page view on load
+const visitorId = getVisitorId();
+fetch(`${window.location.origin}/api/track?projectId=<span th:text="${project.id}">1</span>&amp;channel=YOUR_CHANNEL&amp;postNumber=YOUR_POST_NUMBER&amp;visitorId=${visitorId}`);
 
 // Submit email
 async function submitEmail(email) {

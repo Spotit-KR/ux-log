@@ -19,12 +19,14 @@ class TrackingController(
         @RequestParam projectId: Long,
         @RequestParam channel: String,
         @RequestParam(required = false) postNumber: String?,
+        @RequestParam(required = false) visitorId: String?,
         request: HttpServletRequest
     ): ResponseEntity<Void> {
         trackingService.trackPageView(
             projectId = projectId,
             channel = channel,
             postNumber = postNumber,
+            visitorId = visitorId,
             ipAddress = request.remoteAddr,
             userAgent = request.getHeader("User-Agent")
         )

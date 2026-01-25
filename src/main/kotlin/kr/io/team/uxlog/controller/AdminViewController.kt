@@ -8,6 +8,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/admin")
@@ -25,11 +26,13 @@ class AdminViewController(
         }
 
         val totalPageViews = projectStats.sumOf { it.totalPageViews }
+        val totalUniqueVisitors = projectStats.sumOf { it.totalUniqueVisitors }
         val totalEmails = projectStats.sumOf { it.totalEmails }
 
         model.addAttribute("projects", projects)
         model.addAttribute("projectStats", projectStats)
         model.addAttribute("totalPageViews", totalPageViews)
+        model.addAttribute("totalUniqueVisitors", totalUniqueVisitors)
         model.addAttribute("totalEmails", totalEmails)
         model.addAttribute("projectCount", projects.size)
 
@@ -44,12 +47,21 @@ class AdminViewController(
     }
 
     @GetMapping("/projects/{id}")
-    fun projectDetail(@PathVariable id: Long, model: Model): String {
+    fun projectDetail(
+        @PathVariable id: Long,
+        @RequestParam(defaultValue = "30") days: Int,
+        model: Model
+    ): String {
         val project = projectService.getProject(id)
         val stats = statisticsService.getProjectStatistics(id)
+        val dailyStats = statisticsService.getDailyStatistics(id, days)
+        val postStats = statisticsService.getPostStatistics(id)
 
         model.addAttribute("project", project)
         model.addAttribute("stats", stats)
+        model.addAttribute("dailyStats", dailyStats)
+        model.addAttribute("postStats", postStats)
+        model.addAttribute("days", days)
 
         return "admin/project-detail"
     }

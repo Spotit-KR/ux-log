@@ -41,6 +41,7 @@ class TrackingBatchProcessor(
                         project = projectRef,
                         channel = data.channel,
                         postNumber = data.postNumber,
+                        visitorId = data.visitorId,
                         ipAddress = data.ipAddress,
                         userAgent = data.userAgent,
                         createdAt = data.createdAt
