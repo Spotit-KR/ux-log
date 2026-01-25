@@ -24,16 +24,17 @@ class TrackingService(
         projectId: Long,
         channel: String,
         postNumber: String? = null,
+        visitorId: String? = null,
         ipAddress: String? = null,
         userAgent: String? = null
     ) {
         runCatching {
-            TrackingData(projectId, channel, postNumber, ipAddress, userAgent)
+            TrackingData(projectId, channel, postNumber, visitorId, ipAddress, userAgent)
                 .let { objectMapper.writeValueAsString(it) }
                 .let { redisTemplate.opsForList().leftPush(bufferProperties.key, it) }
         }.onFailure { e ->
             logger.warn("Failed to push to Redis, falling back to direct DB insert: {}", e.message)
-            saveDirectly(projectId, channel, postNumber, ipAddress, userAgent)
+            saveDirectly(projectId, channel, postNumber, visitorId, ipAddress, userAgent)
         }
     }
 
@@ -41,6 +42,7 @@ class TrackingService(
         projectId: Long,
         channel: String,
         postNumber: String?,
+        visitorId: String?,
         ipAddress: String?,
         userAgent: String?
     ) {
@@ -51,6 +53,7 @@ class TrackingService(
             project = project,
             channel = channel,
             postNumber = postNumber,
+            visitorId = visitorId,
             ipAddress = ipAddress,
             userAgent = userAgent
         ).also { pageViewRepository.save(it) }

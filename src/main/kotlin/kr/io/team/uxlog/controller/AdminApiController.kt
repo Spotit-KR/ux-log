@@ -1,8 +1,7 @@
 package kr.io.team.uxlog.controller
 
 import jakarta.servlet.http.HttpServletResponse
-import kr.io.team.uxlog.dto.ProjectRequest
-import kr.io.team.uxlog.dto.ProjectStatistics
+import kr.io.team.uxlog.dto.*
 import kr.io.team.uxlog.service.EmailService
 import kr.io.team.uxlog.service.ProjectService
 import kr.io.team.uxlog.service.StatisticsService
@@ -48,6 +47,39 @@ class AdminApiController(
     @GetMapping("/projects/{id}/stats")
     fun getProjectStats(@PathVariable id: Long): ResponseEntity<ProjectStatistics> {
         val stats = statisticsService.getProjectStatistics(id)
+        return ResponseEntity.ok(stats)
+    }
+
+    @GetMapping("/projects/{id}/stats/detailed")
+    fun getDetailedStats(
+        @PathVariable id: Long,
+        @RequestParam(defaultValue = "30") days: Int
+    ): ResponseEntity<DetailedProjectStatistics> {
+        val stats = statisticsService.getDetailedStatistics(id, days)
+        return ResponseEntity.ok(stats)
+    }
+
+    @GetMapping("/projects/{id}/stats/daily")
+    fun getDailyStats(
+        @PathVariable id: Long,
+        @RequestParam(defaultValue = "30") days: Int
+    ): ResponseEntity<List<DailyStatistics>> {
+        val stats = statisticsService.getDailyStatistics(id, days)
+        return ResponseEntity.ok(stats)
+    }
+
+    @GetMapping("/projects/{id}/stats/posts")
+    fun getPostStats(@PathVariable id: Long): ResponseEntity<List<PostStatistics>> {
+        val stats = statisticsService.getPostStatistics(id)
+        return ResponseEntity.ok(stats)
+    }
+
+    @GetMapping("/projects/{id}/stats/daily-posts")
+    fun getDailyPostStats(
+        @PathVariable id: Long,
+        @RequestParam(defaultValue = "30") days: Int
+    ): ResponseEntity<List<DailyPostStatistics>> {
+        val stats = statisticsService.getDailyPostStatistics(id, days)
         return ResponseEntity.ok(stats)
     }
 

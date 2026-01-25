@@ -8,7 +8,8 @@ import java.time.LocalDateTime
     name = "page_view",
     indexes = [
         Index(name = "idx_page_view_project_channel", columnList = "project_id, channel"),
-        Index(name = "idx_page_view_created_at", columnList = "created_at")
+        Index(name = "idx_page_view_created_at", columnList = "created_at"),
+        Index(name = "idx_page_view_visitor_id", columnList = "visitor_id")
     ]
 )
 class PageView(
@@ -24,6 +25,9 @@ class PageView(
     val channel: String,
 
     val postNumber: String? = null,
+
+    @Column(name = "visitor_id")
+    val visitorId: String? = null,
 
     val ipAddress: String? = null,
 
