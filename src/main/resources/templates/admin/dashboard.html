@@ -3,51 +3,51 @@
       th:replace="~{admin/layout :: layout(~{::content})}">
 <body>
 <div th:fragment="content">
-    <h1>Dashboard</h1>
+    <h1>대시보드</h1>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value" th:text="${projectCount}">0</div>
-            <div class="stat-label">Total Projects</div>
+            <div class="stat-label">총 프로젝트</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${totalPageViews}">0</div>
-            <div class="stat-label">Total Page Views</div>
+            <div class="stat-label">총 페이지뷰</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${totalUniqueVisitors}">0</div>
-            <div class="stat-label">Unique Visitors</div>
+            <div class="stat-label">순 방문자</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${totalEmails}">0</div>
-            <div class="stat-label">Total Emails</div>
+            <div class="stat-label">총 이메일</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${totalUniqueVisitors > 0 ? #numbers.formatDecimal(totalEmails * 100.0 / totalUniqueVisitors, 1, 1) + '%' : '0%'}">0%</div>
-            <div class="stat-label">Overall Conversion</div>
+            <div class="stat-label">전체 전환율</div>
         </div>
     </div>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin-bottom: 0;">Projects Overview</h2>
-            <button class="btn" onclick="openModal()">+ New Project</button>
+            <h2 style="margin-bottom: 0;">프로젝트 현황</h2>
+            <button class="btn" onclick="openModal()">+ 새 프로젝트</button>
         </div>
 
         <div th:if="${#lists.isEmpty(projects)}" class="empty-state">
-            <p>No projects yet. Create your first project to start tracking.</p>
+            <p>아직 프로젝트가 없습니다. 첫 프로젝트를 생성하여 추적을 시작하세요.</p>
         </div>
 
         <table th:if="${!#lists.isEmpty(projects)}">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Project Name</th>
-                    <th>Page Views</th>
-                    <th>Unique Visitors</th>
-                    <th>Emails</th>
-                    <th>Conversion Rate</th>
-                    <th>Actions</th>
+                    <th>프로젝트명</th>
+                    <th>페이지뷰</th>
+                    <th>순 방문자</th>
+                    <th>이메일</th>
+                    <th>전환율</th>
+                    <th>관리</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,7 +59,7 @@
                     <td th:text="${stat.totalEmails}">0</td>
                     <td class="conversion-rate" th:text="${#numbers.formatDecimal(stat.conversionRate, 1, 1) + '%'}">0%</td>
                     <td>
-                        <a th:href="@{/admin/projects/{id}(id=${stat.projectId})}" class="btn btn-secondary">View Details</a>
+                        <a th:href="@{/admin/projects/{id}(id=${stat.projectId})}" class="btn btn-secondary">상세보기</a>
                     </td>
                 </tr>
             </tbody>
@@ -70,19 +70,19 @@
     <div id="projectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Create New Project</h3>
+                <h3>새 프로젝트 생성</h3>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <form id="projectForm" onsubmit="createProject(event)">
                 <div class="form-group">
-                    <label for="projectName">Project Name *</label>
+                    <label for="projectName">프로젝트명 *</label>
                     <input type="text" id="projectName" name="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="projectDescription">Description</label>
+                    <label for="projectDescription">설명</label>
                     <textarea id="projectDescription" name="description" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn">Create Project</button>
+                <button type="submit" class="btn">생성</button>
             </form>
         </div>
     </div>
@@ -110,7 +110,7 @@
             if (response.ok) {
                 window.location.reload();
             } else {
-                alert('Failed to create project');
+                alert('프로젝트 생성에 실패했습니다');
             }
         }
     </script>

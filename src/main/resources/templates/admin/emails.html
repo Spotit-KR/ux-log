@@ -4,31 +4,31 @@
 <body>
 <div th:fragment="content">
     <div class="breadcrumb">
-        <a href="/admin">Dashboard</a> &gt;
-        <a href="/admin/projects">Projects</a> &gt;
+        <a href="/admin">대시보드</a> &gt;
+        <a href="/admin/projects">프로젝트</a> &gt;
         <a th:href="@{/admin/projects/{id}(id=${project.id})}" th:text="${project.name}">Project Name</a> &gt;
-        <span>Emails</span>
+        <span>이메일</span>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>Emails - <span th:text="${project.name}">Project Name</span></h1>
-        <a th:href="@{/api/admin/projects/{id}/emails/export(id=${project.id})}" class="btn btn-success">Export CSV</a>
+        <h1>이메일 - <span th:text="${project.name}">Project Name</span></h1>
+        <a th:href="@{/api/admin/projects/{id}/emails/export(id=${project.id})}" class="btn btn-success">CSV 내보내기</a>
     </div>
 
     <div class="card">
-        <p style="margin-bottom: 20px;" th:text="${#lists.size(emails)} + ' emails collected'">0 emails collected</p>
+        <p style="margin-bottom: 20px;" th:text="${#lists.size(emails)} + '개 이메일 수집됨'">0개 이메일 수집됨</p>
 
         <div th:if="${#lists.isEmpty(emails)}" class="empty-state">
-            <p>No emails collected yet.</p>
+            <p>아직 수집된 이메일이 없습니다.</p>
         </div>
 
         <table th:if="${!#lists.isEmpty(emails)}">
             <thead>
                 <tr>
-                    <th>Email</th>
-                    <th>Channel</th>
-                    <th>Post Number</th>
-                    <th>Collected At</th>
+                    <th>이메일</th>
+                    <th>채널</th>
+                    <th>게시물 번호</th>
+                    <th>수집일시</th>
                 </tr>
             </thead>
             <tbody>

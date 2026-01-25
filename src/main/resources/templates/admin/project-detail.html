@@ -4,8 +4,8 @@
 <body>
 <div th:fragment="content">
     <div class="breadcrumb">
-        <a href="/admin">Dashboard</a> &gt;
-        <a href="/admin/projects">Projects</a> &gt;
+        <a href="/admin">대시보드</a> &gt;
+        <a href="/admin/projects">프로젝트</a> &gt;
         <span th:text="${project.name}">Project Name</span>
     </div>
 
@@ -15,40 +15,40 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value" th:text="${stats.totalPageViews}">0</div>
-            <div class="stat-label">Page Views</div>
+            <div class="stat-label">페이지뷰</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${stats.totalUniqueVisitors}">0</div>
-            <div class="stat-label">Unique Visitors</div>
+            <div class="stat-label">순 방문자</div>
         </div>
         <div class="stat-card">
             <div class="stat-value" th:text="${stats.totalEmails}">0</div>
-            <div class="stat-label">Emails Collected</div>
+            <div class="stat-label">수집된 이메일</div>
         </div>
         <div class="stat-card">
             <div class="stat-value conversion-rate" th:text="${#numbers.formatDecimal(stats.conversionRate, 1, 1) + '%'}">0%</div>
-            <div class="stat-label">Conversion Rate</div>
+            <div class="stat-label">전환율</div>
         </div>
     </div>
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin-bottom: 0;">Channel Statistics</h2>
-            <a th:href="@{/admin/projects/{id}/emails(id=${project.id})}" class="btn">View Emails</a>
+            <h2 style="margin-bottom: 0;">채널별 통계</h2>
+            <a th:href="@{/admin/projects/{id}/emails(id=${project.id})}" class="btn">이메일 보기</a>
         </div>
 
         <div th:if="${#lists.isEmpty(stats.channelStats)}" class="empty-state">
-            <p>No traffic data yet. Start tracking by using the API.</p>
+            <p>아직 트래픽 데이터가 없습니다. API를 사용하여 추적을 시작하세요.</p>
         </div>
 
         <table th:if="${!#lists.isEmpty(stats.channelStats)}">
             <thead>
                 <tr>
-                    <th>Channel</th>
-                    <th>Page Views</th>
-                    <th>Unique Visitors</th>
-                    <th>Emails</th>
-                    <th>Conversion Rate</th>
+                    <th>채널</th>
+                    <th>페이지뷰</th>
+                    <th>순 방문자</th>
+                    <th>이메일</th>
+                    <th>전환율</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,29 +65,29 @@
 
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin-bottom: 0;">Daily Statistics</h2>
+            <h2 style="margin-bottom: 0;">일별 통계</h2>
             <div>
                 <a th:href="@{/admin/projects/{id}(id=${project.id}, days=7)}"
-                   th:classappend="${days == 7} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">7 Days</a>
+                   th:classappend="${days == 7} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">7일</a>
                 <a th:href="@{/admin/projects/{id}(id=${project.id}, days=30)}"
-                   th:classappend="${days == 30} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">30 Days</a>
+                   th:classappend="${days == 30} ? 'btn' : 'btn btn-secondary'" style="margin-right: 5px;">30일</a>
                 <a th:href="@{/admin/projects/{id}(id=${project.id}, days=90)}"
-                   th:classappend="${days == 90} ? 'btn' : 'btn btn-secondary'">90 Days</a>
+                   th:classappend="${days == 90} ? 'btn' : 'btn btn-secondary'">90일</a>
             </div>
         </div>
 
         <div th:if="${#lists.isEmpty(dailyStats)}" class="empty-state">
-            <p>No daily data available yet.</p>
+            <p>아직 일별 데이터가 없습니다.</p>
         </div>
 
         <table th:if="${!#lists.isEmpty(dailyStats)}">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Page Views</th>
-                    <th>Unique Visitors</th>
-                    <th>Emails</th>
-                    <th>Conversion Rate</th>
+                    <th>날짜</th>
+                    <th>페이지뷰</th>
+                    <th>순 방문자</th>
+                    <th>이메일</th>
+                    <th>전환율</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,20 +103,20 @@
     </div>
 
     <div class="card">
-        <h2>Post Statistics</h2>
+        <h2>게시물별 통계</h2>
 
         <div th:if="${#lists.isEmpty(postStats)}" class="empty-state">
-            <p>No post-level data available yet. Use the postNumber parameter when tracking.</p>
+            <p>아직 게시물별 데이터가 없습니다. 추적 시 postNumber 파라미터를 사용하세요.</p>
         </div>
 
         <table th:if="${!#lists.isEmpty(postStats)}">
             <thead>
                 <tr>
-                    <th>Post Number</th>
-                    <th>Page Views</th>
-                    <th>Unique Visitors</th>
-                    <th>Emails</th>
-                    <th>Conversion Rate</th>
+                    <th>게시물 번호</th>
+                    <th>페이지뷰</th>
+                    <th>순 방문자</th>
+                    <th>이메일</th>
+                    <th>전환율</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,8 +132,8 @@
     </div>
 
     <div class="card">
-        <h2>Integration Guide</h2>
-        <p style="margin-bottom: 15px;">Add this tracking code to your landing page:</p>
+        <h2>연동 가이드</h2>
+        <p style="margin-bottom: 15px;">랜딩페이지에 아래 추적 코드를 추가하세요:</p>
 
         <div style="background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 13px; overflow-x: auto;">
             <pre style="margin: 0; white-space: pre-wrap;">// Get or create visitor ID (store in cookie)
