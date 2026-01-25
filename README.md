@@ -71,11 +71,14 @@ GET /api/track
 | `projectId` | O | 프로젝트 ID |
 | `channel` | O | 유입 채널 (thread, instagram, twitter 등) |
 | `postNumber` | X | 게시물 번호 |
+| `visitorId` | X | 방문자 고유 식별자 (쿠키 등에서 생성) |
+
+> **Note:** `visitorId`가 제공되지 않으면 IP + User-Agent 조합으로 고유 방문자를 식별합니다.
 
 **Example:**
 
 ```bash
-curl "http://localhost:8080/api/track?projectId=1&channel=thread&postNumber=42"
+curl "http://localhost:8080/api/track?projectId=1&channel=thread&postNumber=42&visitorId=abc-123-def"
 ```
 
 **Response:** `204 No Content`
@@ -204,23 +207,125 @@ GET /api/admin/projects/{id}/stats
   "projectId": 1,
   "projectName": "test1",
   "totalPageViews": 150,
+  "totalUniqueVisitors": 120,
   "totalEmails": 12,
-  "conversionRate": 8.0,
+  "conversionRate": 10.0,
   "channelStats": [
     {
       "channel": "thread",
       "pageViews": 100,
+      "uniqueVisitors": 80,
       "emails": 8,
-      "conversionRate": 8.0
+      "conversionRate": 10.0
     },
     {
       "channel": "instagram",
       "pageViews": 50,
+      "uniqueVisitors": 40,
       "emails": 4,
-      "conversionRate": 8.0
+      "conversionRate": 10.0
     }
   ]
 }
+```
+
+> **Note:** `conversionRate`는 고유 방문자(UV) 대비 이메일 전환율입니다.
+
+#### 상세 통계 조회
+
+전체 요약 + 일별 통계 + 포스트별 통계를 한번에 조회합니다.
+
+```
+GET /api/admin/projects/{id}/stats/detailed?days=30
+```
+
+| 파라미터 | 필수 | 기본값 | 설명 |
+|----------|------|--------|------|
+| `days` | X | 30 | 조회할 일수 |
+
+**Response:**
+
+```json
+{
+  "summary": { /* ProjectStatistics */ },
+  "dailyStats": [ /* DailyStatistics[] */ ],
+  "postStats": [ /* PostStatistics[] */ ]
+}
+```
+
+#### 일별 통계 조회
+
+```
+GET /api/admin/projects/{id}/stats/daily?days=30
+```
+
+**Response:**
+
+```json
+[
+  {
+    "date": "2024-01-15",
+    "pageViews": 45,
+    "uniqueVisitors": 38,
+    "emails": 3,
+    "conversionRate": 7.89
+  },
+  {
+    "date": "2024-01-14",
+    "pageViews": 52,
+    "uniqueVisitors": 41,
+    "emails": 5,
+    "conversionRate": 12.19
+  }
+]
+```
+
+#### 포스트별 통계 조회
+
+```
+GET /api/admin/projects/{id}/stats/posts
+```
+
+**Response:**
+
+```json
+[
+  {
+    "postNumber": "42",
+    "pageViews": 100,
+    "uniqueVisitors": 85,
+    "emails": 10,
+    "conversionRate": 11.76
+  },
+  {
+    "postNumber": "123",
+    "pageViews": 50,
+    "uniqueVisitors": 45,
+    "emails": 2,
+    "conversionRate": 4.44
+  }
+]
+```
+
+#### 일별 + 포스트별 통계 조회
+
+```
+GET /api/admin/projects/{id}/stats/daily-posts?days=30
+```
+
+**Response:**
+
+```json
+[
+  {
+    "date": "2024-01-15",
+    "postNumber": "42",
+    "pageViews": 25,
+    "uniqueVisitors": 20,
+    "emails": 2,
+    "conversionRate": 10.0
+  }
+]
 ```
 
 #### 이메일 목록 조회
@@ -268,13 +373,24 @@ https://your-landing.com?channel=instagram&postNumber=123
   const PROJECT_ID = 1; // 프로젝트 ID
   const API_BASE = 'https://your-uxlog-server.com';
 
+  // 방문자 ID 생성/조회 (쿠키에 저장)
+  function getVisitorId() {
+    let id = document.cookie.match(/visitorId=([^;]+)/)?.[1];
+    if (!id) {
+      id = crypto.randomUUID();
+      document.cookie = `visitorId=${id}; max-age=31536000; path=/`; // 1년 유지
+    }
+    return id;
+  }
+
   // URL에서 query parameter 읽기
   const params = new URLSearchParams(window.location.search);
   const channel = params.get('channel') || 'direct';
   const postNumber = params.get('postNumber') || '';
+  const visitorId = getVisitorId();
 
   // 페이지 로드 시 방문 기록
-  fetch(`${API_BASE}/api/track?projectId=${PROJECT_ID}&channel=${channel}&postNumber=${postNumber}`);
+  fetch(`${API_BASE}/api/track?projectId=${PROJECT_ID}&channel=${channel}&postNumber=${postNumber}&visitorId=${visitorId}`);
 
   // 이메일 폼 제출
   document.getElementById('emailForm').addEventListener('submit', async (e) => {
