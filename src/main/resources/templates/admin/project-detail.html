@@ -10,7 +10,17 @@
     </div>
 
     <h1><span th:text="${project.name}">Project Name</span> <span style="color: #7f8c8d; font-size: 0.5em;">(ID: <span th:text="${project.id}">1</span>)</span></h1>
-    <p th:if="${project.description}" th:text="${project.description}" style="color: #7f8c8d; margin-bottom: 20px;">Description</p>
+    <p th:if="${project.description}" th:text="${project.description}" style="color: #7f8c8d; margin-bottom: 10px;">Description</p>
+    <p style="color: #7f8c8d; margin-bottom: 20px;">
+        초기 대기자 수:
+        <span id="waitingOffsetDisplay" th:text="${project.waitingOffset}">0</span>명
+        <button onclick="showEditWaitingOffset()" class="btn btn-secondary" style="margin-left: 10px; padding: 4px 10px; font-size: 12px;">수정</button>
+        <span id="waitingOffsetEdit" style="display: none;">
+            <input type="number" id="waitingOffsetInput" th:value="${project.waitingOffset}" min="0" style="width: 100px; padding: 4px 8px;">
+            <button onclick="updateWaitingOffset()" class="btn" style="padding: 4px 10px; font-size: 12px;">저장</button>
+            <button onclick="hideEditWaitingOffset()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;">취소</button>
+        </span>
+    </p>
 
     <div class="stats-grid">
         <div class="stat-card">
@@ -162,9 +172,52 @@ async function submitEmail(email) {
             postNumber: 'YOUR_POST_NUMBER'
         })
     });
-}</pre>
+}
+
+// Get real-time waiting count (waitingOffset + email subscribers)
+fetch(`${window.location.origin}/api/projects/<span th:text="${project.id}">1</span>/waiting-count`)
+    .then(res => res.json())
+    .then(data => {
+        console.log('현재 대기자 수:', data.waitingCount);
+    });</pre>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        const projectId = [[${project.id}]];
+
+        function showEditWaitingOffset() {
+            document.getElementById('waitingOffsetDisplay').style.display = 'none';
+            document.getElementById('waitingOffsetEdit').style.display = 'inline';
+            document.getElementById('waitingOffsetInput').focus();
+        }
+
+        function hideEditWaitingOffset() {
+            document.getElementById('waitingOffsetDisplay').style.display = 'inline';
+            document.getElementById('waitingOffsetEdit').style.display = 'none';
+        }
+
+        async function updateWaitingOffset() {
+            const waitingOffset = parseInt(document.getElementById('waitingOffsetInput').value) || 0;
+
+            try {
+                const response = await fetch(`/api/admin/projects/${projectId}/waiting-offset`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ waitingOffset: waitingOffset })
+                });
+
+                if (response.ok) {
+                    document.getElementById('waitingOffsetDisplay').textContent = waitingOffset;
+                    hideEditWaitingOffset();
+                } else {
+                    alert('수정에 실패했습니다.');
+                }
+            } catch (error) {
+                alert('오류가 발생했습니다: ' + error.message);
+            }
+        }
+    </script>
 </div>
 </body>
 </html>

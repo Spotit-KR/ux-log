@@ -25,6 +25,7 @@ class AdminApiController(
                 "id" to it.id,
                 "name" to it.name,
                 "description" to it.description,
+                "waitingOffset" to it.waitingOffset,
                 "createdAt" to it.createdAt
             )
         }
@@ -33,13 +34,31 @@ class AdminApiController(
 
     @PostMapping("/projects")
     fun createProject(@RequestBody request: ProjectRequest): ResponseEntity<Map<String, Any?>> {
-        val project = projectService.createProject(request.name, request.description)
+        val project = projectService.createProject(request.name, request.description, request.waitingOffset)
         return ResponseEntity.status(HttpStatus.CREATED).body(
             mapOf(
                 "id" to project.id,
                 "name" to project.name,
                 "description" to project.description,
+                "waitingOffset" to project.waitingOffset,
                 "createdAt" to project.createdAt
+            )
+        )
+    }
+
+    @PatchMapping("/projects/{id}/waiting-offset")
+    fun updateWaitingOffset(
+        @PathVariable id: Long,
+        @RequestBody request: Map<String, Long>
+    ): ResponseEntity<Map<String, Any?>> {
+        val waitingOffset = request["waitingOffset"]
+            ?: throw IllegalArgumentException("waitingOffset is required")
+        val project = projectService.updateWaitingOffset(id, waitingOffset)
+        return ResponseEntity.ok(
+            mapOf(
+                "id" to project.id,
+                "name" to project.name,
+                "waitingOffset" to project.waitingOffset
             )
         )
     }

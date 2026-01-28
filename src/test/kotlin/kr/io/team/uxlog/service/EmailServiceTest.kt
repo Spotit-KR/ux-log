@@ -113,4 +113,32 @@ class EmailServiceTest {
             emailService.subscribe(projectId = project.id, email = "user@")
         }
     }
+
+    @Test
+    fun `대기자 수를 조회할 수 있다`() {
+        emailService.subscribe(projectId = project.id, email = "user1@example.com")
+        emailService.subscribe(projectId = project.id, email = "user2@example.com")
+
+        val waitingCount = emailService.getWaitingCount(project.id)
+
+        assertEquals(2, waitingCount)
+    }
+
+    @Test
+    fun `대기자 수는 waitingOffset과 이메일 수의 합이다`() {
+        val projectWithOffset = projectRepository.save(Project(name = "Project with offset", waitingOffset = 78))
+        emailService.subscribe(projectId = projectWithOffset.id, email = "user1@example.com")
+        emailService.subscribe(projectId = projectWithOffset.id, email = "user2@example.com")
+
+        val waitingCount = emailService.getWaitingCount(projectWithOffset.id)
+
+        assertEquals(80, waitingCount) // 78 + 2
+    }
+
+    @Test
+    fun `존재하지 않는 프로젝트의 대기자 수를 조회하면 예외가 발생한다`() {
+        assertThrows<IllegalArgumentException> {
+            emailService.getWaitingCount(9999)
+        }
+    }
 }

@@ -4,10 +4,7 @@ import kr.io.team.uxlog.dto.EmailRequest
 import kr.io.team.uxlog.service.EmailService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api")
@@ -29,5 +26,11 @@ class EmailController(
         } else {
             ResponseEntity.ok(mapOf("success" to true, "message" to "Already subscribed"))
         }
+    }
+
+    @GetMapping("/projects/{projectId}/waiting-count")
+    fun getWaitingCount(@PathVariable projectId: Long): ResponseEntity<Map<String, Long>> {
+        val count = emailService.getWaitingCount(projectId)
+        return ResponseEntity.ok(mapOf("waitingCount" to count))
     }
 }

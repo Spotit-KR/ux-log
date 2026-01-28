@@ -15,6 +15,9 @@ class Project(
 
     val description: String? = null,
 
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    val waitingOffset: Long = 0,
+
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
 )

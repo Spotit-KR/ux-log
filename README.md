@@ -158,6 +158,29 @@ curl -X POST "http://localhost:8080/api/email" \
 
 ---
 
+### 실시간 대기자 수 조회
+
+**GET** `/api/projects/{projectId}/waiting-count`
+
+랜딩페이지에서 사용할 실시간 대기자 수를 조회합니다.
+대기자 수 = 초기 대기자 수(waitingOffset) + 이메일 구독자 수
+
+#### Path Parameters
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| projectId | Long | O | 프로젝트 ID |
+
+#### Response (200 OK)
+
+```json
+{
+  "waitingCount": 85
+}
+```
+
+---
+
 ### 관리자 API
 
 #### 프로젝트 목록 조회
@@ -174,6 +197,7 @@ GET /api/admin/projects
     "id": 1,
     "name": "test1",
     "description": "테스트 프로젝트",
+    "waitingOffset": 78,
     "createdAt": "2024-01-01T00:00:00"
   }
 ]
@@ -190,7 +214,52 @@ POST /api/admin/projects
 ```json
 {
   "name": "my-project",
-  "description": "프로젝트 설명"
+  "description": "프로젝트 설명",
+  "waitingOffset": 78
+}
+```
+
+| 필드 | 필수 | 설명 |
+|------|------|------|
+| `name` | O | 프로젝트명 |
+| `description` | X | 프로젝트 설명 |
+| `waitingOffset` | X | 초기 대기자 수 (기본값: 0) |
+
+**Response (201 Created):**
+
+```json
+{
+  "id": 1,
+  "name": "my-project",
+  "description": "프로젝트 설명",
+  "waitingOffset": 78,
+  "createdAt": "2024-01-01T00:00:00"
+}
+```
+
+#### 초기 대기자 수 수정
+
+```
+PATCH /api/admin/projects/{id}/waiting-offset
+```
+
+프로젝트의 초기 대기자 수(waitingOffset)를 수정합니다.
+
+**Request Body:**
+
+```json
+{
+  "waitingOffset": 78
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "id": 1,
+  "name": "프로젝트명",
+  "waitingOffset": 78
 }
 ```
 

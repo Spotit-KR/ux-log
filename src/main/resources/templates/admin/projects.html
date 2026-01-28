@@ -21,6 +21,7 @@
                     <th>ID</th>
                     <th>이름</th>
                     <th>설명</th>
+                    <th>초기 대기자</th>
                     <th>생성일</th>
                     <th>관리</th>
                 </tr>
@@ -30,6 +31,7 @@
                     <td th:text="${project.id}">1</td>
                     <td th:text="${project.name}">Project Name</td>
                     <td th:text="${project.description ?: '-'}">Description</td>
+                    <td th:text="${project.waitingOffset}">0</td>
                     <td th:text="${#temporals.format(project.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
                     <td>
                         <a th:href="@{/admin/projects/{id}(id=${project.id})}" class="btn btn-secondary">보기</a>
@@ -56,6 +58,10 @@
                     <label for="projectDescription">설명</label>
                     <textarea id="projectDescription" name="description" rows="3"></textarea>
                 </div>
+                <div class="form-group">
+                    <label for="waitingOffset">초기 대기자 수</label>
+                    <input type="number" id="waitingOffset" name="waitingOffset" value="0" min="0">
+                </div>
                 <button type="submit" class="btn">생성</button>
             </form>
         </div>
@@ -74,11 +80,12 @@
             e.preventDefault();
             const name = document.getElementById('projectName').value;
             const description = document.getElementById('projectDescription').value;
+            const waitingOffset = parseInt(document.getElementById('waitingOffset').value) || 0;
 
             const response = await fetch('/api/admin/projects', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, description })
+                body: JSON.stringify({ name, description, waitingOffset })
             });
 
             if (response.ok) {
