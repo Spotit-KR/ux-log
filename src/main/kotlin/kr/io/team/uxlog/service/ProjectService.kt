@@ -11,8 +11,8 @@ class ProjectService(
     private val projectRepository: ProjectRepository
 ) {
 
-    fun createProject(name: String, description: String? = null): Project {
-        return projectRepository.save(Project(name = name, description = description))
+    fun createProject(name: String, description: String? = null, waitingOffset: Long = 0): Project {
+        return projectRepository.save(Project(name = name, description = description, waitingOffset = waitingOffset))
     }
 
     @Transactional(readOnly = true)
@@ -24,5 +24,17 @@ class ProjectService(
     fun getProject(id: Long): Project {
         return projectRepository.findById(id)
             .orElseThrow { IllegalArgumentException("Project not found: $id") }
+    }
+
+    fun updateWaitingOffset(id: Long, waitingOffset: Long): Project {
+        val project = getProject(id)
+        val updated = Project(
+            id = project.id,
+            name = project.name,
+            description = project.description,
+            waitingOffset = waitingOffset,
+            createdAt = project.createdAt
+        )
+        return projectRepository.save(updated)
     }
 }

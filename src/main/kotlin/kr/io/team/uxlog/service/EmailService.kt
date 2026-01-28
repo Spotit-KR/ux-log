@@ -56,4 +56,13 @@ class EmailService(
     fun getEmailsByProjectId(projectId: Long): List<EmailSubscription> {
         return emailSubscriptionRepository.findByProjectId(projectId)
     }
+
+    @Transactional(readOnly = true)
+    fun getWaitingCount(projectId: Long): Long {
+        val project = projectRepository.findById(projectId)
+            .orElseThrow { IllegalArgumentException("Project not found: $projectId") }
+
+        val emailCount = emailSubscriptionRepository.countByProjectId(projectId)
+        return project.waitingOffset + emailCount
+    }
 }
