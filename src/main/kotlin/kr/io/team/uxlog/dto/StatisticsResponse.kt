@@ -29,8 +29,9 @@ data class DailyStatistics(
     val conversionRate: Double
 )
 
-// postNumber별 통계
+// postNumber별 통계 (채널 구분 포함)
 data class PostStatistics(
+    val channel: String,
     val postNumber: String,
     val pageViews: Long,
     val uniqueVisitors: Long,
