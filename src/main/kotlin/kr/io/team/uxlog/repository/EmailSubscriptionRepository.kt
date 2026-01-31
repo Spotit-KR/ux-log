@@ -45,6 +45,17 @@ interface EmailSubscriptionRepository : JpaRepository<EmailSubscription, Long> {
     """)
     fun countByProjectIdGroupByPostNumber(projectId: Long): List<Array<Any>>
 
+    // 채널 + postNumber별 이메일 구독 수
+    @Query("""
+        SELECT es.channel, es.postNumber, COUNT(es)
+        FROM EmailSubscription es
+        WHERE es.project.id = :projectId
+          AND es.postNumber IS NOT NULL
+        GROUP BY es.channel, es.postNumber
+        ORDER BY COUNT(es) DESC
+    """)
+    fun countByProjectIdGroupByChannelAndPostNumber(projectId: Long): List<Array<Any>>
+
     // 일별 + postNumber별 이메일 구독 수
     @Query("""
         SELECT CAST(es.createdAt AS LocalDate) as date, es.postNumber, COUNT(es)

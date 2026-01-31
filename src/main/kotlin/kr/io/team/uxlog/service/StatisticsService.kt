@@ -85,18 +85,21 @@ class StatisticsService(
     }
 
     fun getPostStatistics(projectId: Long): List<PostStatistics> {
-        val pageViewStats = pageViewRepository.getStatsByProjectIdGroupByPostNumber(projectId)
-            .associate { (it[0] as String) to Pair(it[1] as Long, it[2] as Long) }
+        // (channel, postNumber) -> (pageViews, uniqueVisitors)
+        val pageViewStats = pageViewRepository.getStatsByProjectIdGroupByChannelAndPostNumber(projectId)
+            .associate { Pair(it[0] as String, it[1] as String) to Pair(it[2] as Long, it[3] as Long) }
 
-        val emailStats = emailSubscriptionRepository.countByProjectIdGroupByPostNumber(projectId)
-            .associate { (it[0] as String) to (it[1] as Long) }
+        // (channel, postNumber) -> emails
+        val emailStats = emailSubscriptionRepository.countByProjectIdGroupByChannelAndPostNumber(projectId)
+            .associate { Pair((it[0] as String?) ?: "direct", it[1] as String) to (it[2] as Long) }
 
-        val allPostNumbers = pageViewStats.keys + emailStats.keys
+        val allKeys = pageViewStats.keys + emailStats.keys
 
-        return allPostNumbers.map { postNumber ->
-            val (pageViews, uniqueVisitors) = pageViewStats[postNumber] ?: Pair(0L, 0L)
-            val emails = emailStats[postNumber] ?: 0L
+        return allKeys.map { (channel, postNumber) ->
+            val (pageViews, uniqueVisitors) = pageViewStats[Pair(channel, postNumber)] ?: Pair(0L, 0L)
+            val emails = emailStats[Pair(channel, postNumber)] ?: 0L
             PostStatistics(
+                channel = channel,
                 postNumber = postNumber,
                 pageViews = pageViews,
                 uniqueVisitors = uniqueVisitors,

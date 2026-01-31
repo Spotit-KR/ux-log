@@ -122,6 +122,7 @@
         <table th:if="${!#lists.isEmpty(postStats)}">
             <thead>
                 <tr>
+                    <th>채널</th>
                     <th>게시물 번호</th>
                     <th>페이지뷰</th>
                     <th>순 방문자</th>
@@ -131,6 +132,7 @@
             </thead>
             <tbody>
                 <tr th:each="post : ${postStats}">
+                    <td th:text="${post.channel}">channel</td>
                     <td th:text="${post.postNumber}">123</td>
                     <td th:text="${post.pageViews}">0</td>
                     <td th:text="${post.uniqueVisitors}">0</td>

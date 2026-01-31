@@ -75,6 +75,20 @@ interface PageViewRepository : JpaRepository<PageView, Long> {
     """)
     fun getStatsByProjectIdGroupByPostNumber(projectId: Long): List<Array<Any>>
 
+    // 채널 + postNumber별 통계 (PV, UV)
+    @Query("""
+        SELECT pv.channel,
+               pv.postNumber,
+               COUNT(pv) as pageViews,
+               COUNT(DISTINCT COALESCE(pv.visitorId, CONCAT(pv.ipAddress, ':', pv.userAgent))) as uniqueVisitors
+        FROM PageView pv
+        WHERE pv.project.id = :projectId
+          AND pv.postNumber IS NOT NULL
+        GROUP BY pv.channel, pv.postNumber
+        ORDER BY COUNT(pv) DESC
+    """)
+    fun getStatsByProjectIdGroupByChannelAndPostNumber(projectId: Long): List<Array<Any>>
+
     // 일별 + postNumber별 통계
     @Query("""
         SELECT CAST(pv.createdAt AS LocalDate) as date,
